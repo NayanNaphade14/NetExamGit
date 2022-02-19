@@ -1,0 +1,235 @@
+public class ProductController : Controller
+    {
+        // GET: Product
+        public ActionResult Index()
+        {
+            List<Product> listprod = new List<Product>();
+            SqlConnection sc = new SqlConnection();
+            sc.ConnectionString = @" Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = NetExam; Integrated Security = True;";
+            sc.Open();
+            SqlCommand scm = new SqlCommand();
+            scm.Connection = sc;
+            scm.CommandType = System.Data.CommandType.StoredProcedure;
+            scm.CommandText = "indexProcedure";
+            SqlDataReader sdr = scm.ExecuteReader();
+            while (sdr.Read())
+            {
+                listprod.Add(new Product { ProductId = (int)sdr["ProductId"], ProductName = (String)sdr["ProductName"], Rate = (decimal)sdr["Rate"], Description = (String)sdr["Description"], CategoryName = (String)sdr["CategoryName"] });
+            }
+            sc.Close();
+            return View(listprod);
+        }
+
+        public ActionResult Edit(int id)
+        {
+            //List<Product> listprod = new List<Product>();
+            Product obj = new Product();
+            SqlConnection sc = new SqlConnection();
+            sc.ConnectionString = @" Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = NetExam; Integrated Security = True;";
+            sc.Open();
+            SqlCommand scm = new SqlCommand();
+            scm.Connection = sc;
+            scm.CommandType = System.Data.CommandType.StoredProcedure;
+            scm.CommandText = "EditProcedure";
+            scm.Parameters.AddWithValue("@Id", id);
+            SqlDataReader sdr = scm.ExecuteReader();
+            while (sdr.Read())
+            {
+                obj = new Product { ProductId = (int)sdr["ProductId"], ProductName = (String)sdr["ProductName"], Rate = (decimal)sdr["Rate"], Description = (String)sdr["Description"], CategoryName = (String)sdr["CategoryName"] };
+            }
+            sc.Close();
+            return View(obj);
+        }
+
+         // POST: Product/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, Product product)
+        {
+            //List<Product> listprod = new List<Product>();
+           // Product obj = new Product();
+            SqlConnection sc = new SqlConnection();
+            sc.ConnectionString = @" Data Source = (localdb)\MSSQLLocalDB; Initial Catalog = NetExam; Integrated Security = True;";
+            sc.Open();
+            SqlCommand scm = new SqlCommand();
+            scm.Connection = sc;
+            scm.CommandType = System.Data.CommandType.StoredProcedure;
+            scm.CommandText = "PostEditProcedure";
+            scm.Parameters.AddWithValue("@ProductId", id);
+            scm.Parameters.AddWithValue("@ProductName", product.ProductName);
+            scm.Parameters.AddWithValue("@Rate", product.Rate);
+            scm.Parameters.AddWithValue("@Description", product.Description);
+            scm.Parameters.AddWithValue("@CategoryName", product.CategoryName);
+            scm.ExecuteNonQuery();
+           
+            sc.Close();
+            return RedirectToAction("Index");
+
+        }
+
+        // GET: Product/Details/5
+        public ActionResult PartialView(int id)
+        {
+            return View();
+        }
+        }
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+**Index View
+
+
+        @model IEnumerable<ExamNet.Models.Product>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+
+<table class="table">
+    <tr>
+       
+        <th>
+            @Html.DisplayNameFor(model => model.ProductId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProductName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Rate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CategoryName)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+<tr>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.ProductId })
+
+        @*@Html.DisplayFor(modelItem => item.ProductId)*@
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.ProductName)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Rate)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.Description)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => item.CategoryName)
+    </td>
+    <td>
+        @*@Html.ActionLink("Edit", "Edit", new { id = item.ProductId }) |*@
+        @*@Html.ActionLink("Details", "Details", new { id = item.ProductId }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.ProductId })*@
+    </td>
+</tr>
+}
+</table>
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+**Model
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace ExamNet.Models
+{
+    public class Product
+    {
+        [Key]
+        public int ProductId { get; set; }
+
+        [Required]
+        [StringLength(50,ErrorMessage ="error, Max lenght should be 50")]
+        public String ProductName { get; set; }
+        
+        [Required]
+        public decimal Rate { get; set; }
+        
+        [Required]
+        [StringLength(200, ErrorMessage = "error, Max lenght should be 200")]
+        public String Description { get; set; }
+        
+        [Required]
+        [StringLength(50, ErrorMessage = "error, Max lenght should be 50")]
+        public String CategoryName { get; set; }
+    }
+}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+** Partial View
+
+<h3>
+    Partial View
+</h3>
+<h3>Nayan Naphade</h3>
+<br />
+<h3>JUHU</h3>
+<br />
+<h3>045</h3>
+
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+**Api
+
+
+namespace NetExamApi.fonts
+{
+    using System;
+    using System.Collections.Generic;
+    
+    public partial class Product
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public decimal Rate { get; set; }
+        public string Description { get; set; }
+        public string CategoryName { get; set; }
+    }
+}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+**My Layout
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title = "MyLayout";</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <h2>MyLayout</h2>
+    
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <hr />
+        <hr />
+        @Html.Partial("PartialView");
+
+        <footer>
+            <p> my layout</p>
+        </footer>
+
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
